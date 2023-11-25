@@ -8,7 +8,7 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 
 # Install execution-spec-tests
-RUN pip install test-filler@git+https://github.com/danceratopz/execution-spec-tests@feat/pytest/add-a-verify-fixtures-as-a-separate-pytest-command
+RUN git clone -b feat/pytest/add-a-verify-fixtures-as-a-separate-pytest-command https://github.com/danceratopz/execution-spec-tests.git
 WORKDIR /execution-spec-tests
 RUN pip install -e .
 
