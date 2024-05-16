@@ -47,7 +47,7 @@
 set -e
 
 geth=/usr/local/bin/geth
-FLAGS="--state.scheme=path"
+FLAGS=""
 
 if [ "$HIVE_LOGLEVEL" != "" ]; then
     FLAGS="$FLAGS --verbosity=$HIVE_LOGLEVEL"
@@ -80,6 +80,10 @@ if [ "$HIVE_NODETYPE" == "snap" ]; then
 fi
 if [ "$HIVE_NODETYPE" == "" ]; then
     FLAGS="$FLAGS --syncmode snap"
+fi
+
+if [ "$HIVE_LOGLEVEL" -gt 3 ]; then
+    echo "Starting: $geth $FLAGS"
 fi
 
 # Configure the chain.
