@@ -1,15 +1,15 @@
 - client: besu
-  nametag: sepolia_fix
+  nametag: sepolia
   dockerfile: git
   build_args:
    github: fab-10/besu
    tag: fix-sepolia-deposit-contract
 
 - client: erigon
-  nametag: sepolia_fix
+  nametag: sepolia
   build_args:
    baseimage: erigontech/erigon
-   tag: release/2.61
+   tag: v3.0.0-rc2
 
 - client: go-ethereum
   nametag: sepolia
