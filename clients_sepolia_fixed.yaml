@@ -1,0 +1,33 @@
+- client: go-ethereum
+  nametag: sepolia_fix
+  dockerfile: git
+  build_args:
+    github: ethereum/go-ethereum
+    tag: master
+
+- client: besu
+  nametag: sepolia_fix
+  dockerfile: git
+  build_args:
+   github: fab-10/besu
+   tag: fix-sepolia-deposit-contract
+
+- client: reth
+  nametag: sepolia_fix
+  dockerfile: git
+  build_args:
+    github: paradigmxyz/reth
+    tag: main
+
+- client: nethermind
+  nametag: sepolia_fix
+  dockerfile: git
+  build_args:
+    github: NethermindEth/nethermind
+    tag: release/1.31.4
+
+- client: erigon
+  nametag: sepolia_fix
+  build_args:
+   baseimage: erigontech/erigon
+   tag: release/2.61
