@@ -1,0 +1,31 @@
+- client: besu
+  nametag: pectra
+  build_args:
+    baseimage: hyperledger/besu
+    tag: 25.4.1
+
+- client: erigon
+  nametag: pectra
+  build_args:
+    baseimage: erigontech/erigon
+    tag: v3.0.2
+    # tag: v3.0.3
+
+- client: go-ethereum
+  nametag: pectra
+  build_args:
+    baseimage: ethereum/client-go
+    tag: v1.15.9
+    # tag: v1.15.11
+
+- client: nethermind
+  nametag: pectra
+  build_args:
+    baseimage: nethermind/nethermind
+    tag: 1.31.9
+
+- client: reth
+  nametag: pectra
+  build_args:
+    baseimage: ghcr.io/paradigmxyz/reth
+    tag: v1.3.12
