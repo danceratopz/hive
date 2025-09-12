@@ -1,11 +1,11 @@
-# Builds and runs the EEST (execution-spec-tests) consume rlp simulator
+# Builds and runs the EEST (execution-spec-tests) consume engine simulator
 FROM ghcr.io/astral-sh/uv:python3.12-bookworm-slim
 
 ## Default fixtures/git-ref
 ARG fixtures=stable@latest
 ENV FIXTURES=${fixtures}
 ARG branch=main
-ENV GIT_REF=${branch}
+ENV GIT_REF=${branch} 
 
 ## Clone and install EEST
 RUN apt-get update && apt-get install -y git
@@ -15,7 +15,7 @@ RUN git init execution-spec-tests && \
     cd execution-spec-tests && \
     git remote add origin https://github.com/ethereum/execution-spec-tests.git && \
     git fetch --depth 1 origin $GIT_REF && \
-    git checkout FETCH_HEAD
+    git checkout FETCH_HEAD;
 
 WORKDIR /execution-spec-tests
 RUN uv sync
@@ -26,5 +26,6 @@ RUN uv sync
 # Use `--docker.nocache` flag to force rebuild.
 RUN uv run consume cache --input "$FIXTURES"
 
-## Define `consume rlp` entry point using the local fixtures
-ENTRYPOINT uv run consume rlp -v --input "$FIXTURES"
+## Define `consume engine` entry point using the local fixtures
+ENTRYPOINT uv run consume enginex -v --input "$FIXTURES" --dist=loadgroup --enginex-fcu-frequency=0
+
