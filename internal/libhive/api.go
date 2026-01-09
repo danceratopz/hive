@@ -296,12 +296,15 @@ func (api *simAPI) startClient(w http.ResponseWriter, r *http.Request) {
 	// Start it!
 	info, err := api.backend.StartContainer(ctx, containerID, options)
 	if info != nil {
+		// Capture the current log file size as the starting offset for this test.
+		logBegin := logFileSize(logFilePath)
 		clientInfo := &ClientInfo{
 			ID:             info.ID,
 			IP:             info.IP,
 			Name:           clientDef.Name,
 			InstantiatedAt: time.Now(),
 			LogFile:        logPath,
+			LogOffsets:     &TestLogOffsets{Begin: logBegin},
 			wait:           info.Wait,
 		}
 
@@ -314,7 +317,9 @@ func (api *simAPI) startClient(w http.ResponseWriter, r *http.Request) {
 
 		// Register the node. This should always be done, even if starting the container
 		// failed, to ensure that the failed client log is associated with the test.
-		api.tm.RegisterNode(testID, info.ID, clientInfo)
+		if err := api.tm.RegisterNode(testID, info.ID, clientInfo); err != nil {
+			slog.Error("API: failed to register node", "test", testID, "node", info.ID, "error", err)
+		}
 	}
 	if err != nil {
 		slog.Error("API: could not start client", "client", clientDef.Name, "container", containerID[:8], "error", err)
