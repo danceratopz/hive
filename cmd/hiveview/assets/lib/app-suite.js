@@ -110,10 +110,14 @@ function showSuiteData(data, suiteID) {
         $('#testsuite_clients').html(html.makeDefinitionList(data.clientVersions));
     }
 
-    // Convert test cases to list.
+    // Convert test cases to list, filtering out multi-test client contexts
+    // which are infrastructure (client lifecycle) rather than real tests.
     let cases = [];
     for (var k in data.testCases) {
         let tc = data.testCases[k];
+        if (tc.multiTestContext) {
+            continue;
+        }
         tc['testIndex'] = k;
         tc['duration'] = testCaseDuration(tc);
         cases.push(tc);
