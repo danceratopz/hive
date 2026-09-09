@@ -74,6 +74,45 @@ arguments are:
 - `github`: For client Dockerfiles building from git, this setting can be used to change
    the source code repository (fork) on GitHub. Example: `ethereum/go-ethereum`.
 
+### Simulator Build Parameters
+
+Use `--sim.file` (or its alias `--sim-file`) to supply simulator build configurations
+in a YAML file:
+
+    ./hive --sim.file simulators.yaml --client go-ethereum
+
+For example, the EELS consume simulators currently build from source. A configuration
+using supported arguments is:
+
+    - simulator: ethereum/eels/consume-engine
+      build_args:
+        fixtures: stable@latest
+        branch: ""
+        disable_strict_exception_matching: nimbus-el
+
+Check each simulator's Dockerfile for its supported build arguments and defaults.
+The EELS `consume-*` simulators accept `fixtures` (the fixture input, default
+`stable@latest`) and `branch` (the execution-specs Git ref; empty uses the repository's
+default branch). `consume-engine` and `consume-enginex` also accept
+`disable_strict_exception_matching`, which defaults to `nimbus-el` and is passed to
+consume's corresponding option.
+
+Each entry supports:
+
+- `simulator`: A known simulator directory under simulators/. Each simulator may appear once.
+- `dockerfile`: An optional extension, such as `git` for `Dockerfile.git`. The selected
+  file must exist in the simulator directory. If omitted, uses `Dockerfile`.
+- `build_args`: Arguments passed to the simulator's Dockerfile.
+
+All entries run in file order unless `--sim` is supplied to filter them using its usual
+regular expression matching. Repeated `--sim.buildarg NAME=VALUE` options apply to every
+selected simulator and override matching arguments from the file. The simulator's
+`hive_context.txt`, if present, still determines its build context. In `--dev` mode,
+simulators are not built or run.
+
+Without `--sim.file`, simulator selection and builds behave as before: `--sim` selects
+simulators, their default `Dockerfile` is used, and `--sim.buildarg` supplies build arguments.
+
 ### Docker Options
 
 `--docker.pull`: Setting this option makes hive re-pull the base images of all built
