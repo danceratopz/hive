@@ -81,28 +81,25 @@ in a YAML file:
 
     ./hive --sim.file simulators.yaml --client go-ethereum
 
-For example, the EELS consume simulators currently build from source. A configuration
-using supported arguments is:
-
-    - simulator: ethereum/eels/consume-engine
-      build_args:
-        fixtures: stable@latest
-        branch: ""
-        disable_strict_exception_matching: nimbus-el
-
-Check each simulator's Dockerfile for its supported build arguments and defaults.
-The EELS `consume-*` simulators accept `fixtures` (the fixture input, default
-`stable@latest`) and `branch` (the execution-specs Git ref; empty uses the repository's
-default branch). `consume-engine` and `consume-enginex` also accept
-`disable_strict_exception_matching`, which defaults to `nimbus-el` and is passed to
-consume's corresponding option.
-
 Each entry supports:
 
 - `simulator`: A known simulator directory under simulators/. Each simulator may appear once.
 - `dockerfile`: An optional extension, such as `git` for `Dockerfile.git`. The selected
   file must exist in the simulator directory. If omitted, uses `Dockerfile`.
-- `build_args`: Arguments passed to the simulator's Dockerfile.
+- `build_args`: Arguments passed to the simulator's Dockerfile. Check each simulator's
+  Dockerfile for its supported build arguments and defaults.
+
+For example, this file runs two EELS simulators, one from the image published by
+execution-specs and one built from source. The next section describes both:
+
+    - simulator: ethereum/eels/consume-engine
+      build_args:
+        tag: glamsterdam-devnet-v8.1.4
+    - simulator: ethereum/eels/consume-rlp
+      dockerfile: git
+      build_args:
+        branch: devnets/glamsterdam/8
+        fixtures: tests-glamsterdam-devnet@v8.1.4
 
 All entries run in file order unless `--sim` is supplied to filter them using its usual
 regular expression matching. Repeated `--sim.buildarg NAME=VALUE` options apply to every
@@ -112,6 +109,57 @@ simulators are not built or run.
 
 Without `--sim.file`, simulator selection and builds behave as before: `--sim` selects
 simulators, their default `Dockerfile` is used, and `--sim.buildarg` supplies build arguments.
+
+### EELS Simulator Build Parameters
+
+The `ethereum/eels/*` simulators run the `consume` and `execute` commands of
+[execution-specs] and have two Dockerfiles:
+
+- `Dockerfile`, the default, runs from an image published by execution-specs under
+  `ghcr.io/ethereum/execution-specs/hive/<simulator>`. The image contains the simulator
+  code and the tests of one release, so hive pulls it and adds metadata layers only.
+- `Dockerfile.git`, selected with `dockerfile: git`, clones execution-specs, installs
+  the simulator with `uv sync` and, for the `consume-*` simulators, downloads a fixture
+  release. Use it for an execution-specs branch or a fixture set that is not published
+  as an image.
+
+`Dockerfile` accepts:
+
+- `tag`: The image tag. It selects the tests; the simulator code in the image is the
+  head of the branch the tests belong to. Defaults to `latest`. `<tag>@sha256:<digest>`
+  pins an exact image.
+- `image`: The image name, to use another registry namespace or a locally built image.
+  Defaults to the published image of the simulator.
+
+`Dockerfile.git` accepts:
+
+- `branch`: The execution-specs Git ref to build from. Empty, the default, uses the
+  repository's default branch.
+- `fixtures`: The fixture input passed to `consume --input`: a release name such as
+  `tests@v20.0.2`, or a URL. Defaults to `stable@latest`, a legacy alias of
+  `tests@latest`, the latest mainnet release. `consume-*` only.
+
+Both files accept `disable_strict_exception_matching` on `consume-engine` and
+`consume-enginex`, which defaults to `nimbus-el` and is passed to consume's corresponding
+option, and `fork` on `execute-blobs`, which defaults to `Osaka`.
+
+An image tag is an execution-specs release name with `@` replaced by `-`, or a channel
+that follows the releases of a line. The release name is also the `fixtures` input that
+gives `Dockerfile.git` the same tests, and the branch the release was cut from is its
+`branch`:
+
+| `tag` | Release | `branch` |
+| --- | --- | --- |
+| `v20.0.2` | `tests@v20.0.2`, mainnet release 20.0.2 | empty, the default branch |
+| `glamsterdam-devnet-v8.1.4` | `tests-glamsterdam-devnet@v8.1.4`, release 8.1.4 of Glamsterdam devnet 8 | `devnets/glamsterdam/8` |
+| `glamsterdam-devnet-8` | the highest `tests-glamsterdam-devnet@v8.*` release | `devnets/glamsterdam/8` |
+| `glamsterdam-devnet-latest` | the highest `tests-glamsterdam-devnet@*` release | the branch of that devnet |
+| `latest` | the highest `tests@v*` release, as `tests@latest`; the default | empty, the default branch |
+| `nightly` | the most recent nightly fill of the default branch; no release | the default branch |
+
+Tags name sources, not bytes; `tag=<tag>@sha256:<digest>` runs an exact image. The full
+tag scheme is described in the [EELS simulators README] and in the execution-specs
+documentation under `docs/running_tests/hive/images/`.
 
 ### Docker Options
 
@@ -202,6 +250,8 @@ private keys in the hivechain source code.
 
 [Go installation documentation]: https://golang.org/doc/install
 [Install docker]: https://docs.docker.com/engine/install/debian/#install-using-the-repository
+[execution-specs]: https://github.com/ethereum/execution-specs
+[EELS simulators README]: ../simulators/ethereum/eels/README.md
 [Overview]: ./overview.md
 [Hive Commands]: ./commandline.md
 [Simulators]: ./simulators.md
