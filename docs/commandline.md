@@ -47,6 +47,10 @@ alias `--client-file`) to use a configuration file.
 
     ./hive --sim my-simulation --config clients.yaml
 
+When `--client` is also given, it selects entries from the file by client name or by name
+and nametag, for example `go-ethereum_main`. Without it, all client entries in the file
+are used.
+
 Here is an example clients.yaml file:
 
     - client: go-ethereum
