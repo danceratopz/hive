@@ -2,7 +2,6 @@ package libhive
 
 import (
 	"fmt"
-	"io"
 	"log/slog"
 	"os"
 	"path/filepath"
@@ -278,20 +277,6 @@ func parseClientDesignator(fullString string) (ClientDesignator, error) {
 	}
 	if res.Client == "" {
 		return res, fmt.Errorf("invalid client name: %s", fullString)
-	}
-	return res, nil
-}
-
-// ParseClientListYAML reads a YAML document containing a list of clients.
-func ParseClientListYAML(inv *Inventory, file io.Reader) ([]ClientDesignator, error) {
-	var res []ClientDesignator
-	dec := yaml.NewDecoder(file)
-	dec.KnownFields(true)
-	if err := dec.Decode(&res); err != nil {
-		return nil, fmt.Errorf("unable to parse clients file: %w", err)
-	}
-	if err := validateClients(inv, res); err != nil {
-		return nil, err
 	}
 	return res, nil
 }
